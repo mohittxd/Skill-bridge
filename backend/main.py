@@ -357,9 +357,74 @@ def health() -> dict[str, str]:
     return {"status": "healthy", "service": "SkillBridge"}
 
 
+def seed_bundled_esco_catalog() -> None:
+    """Restore the build-time ESCO catalog into the runtime SQLite DB.
+
+    Render free web-service filesystems do not persist across deployments.
+    Account/profile tables are deliberately left untouched.
+    """
+    bundle = DATA_DIR / "esco_catalog.sqlite3"
+    if not bundle.is_file():
+        _LOGGER.info("No bundled ESCO catalog available")
+        return
+
+    with database_connection() as connection:
+        metadata = dict(connection.execute(
+            "SELECT key, value FROM esco_catalog_metadata"
+        ).fetchall())
+        occupation_count = connection.execute(
+            "SELECT COUNT(*) FROM esco_occupations"
+        ).fetchone()[0]
+        skill_count = connection.execute(
+            "SELECT COUNT(*) FROM esco_skills"
+        ).fetchone()[0]
+        relation_count = connection.execute(
+            "SELECT COUNT(*) FROM esco_occupation_skill_relations"
+        ).fetchone()[0]
+        if (occupation_count and skill_count and relation_count
+                and metadata.get("embeddings_ready") == "true"
+                and metadata.get("embedding_model") == career_recommendations.MODEL_NAME):
+            return
+
+        # ATTACH is performed outside a transaction. Keep all catalog replacements
+        # in a single transaction so partial imports are rolled back.
+        connection.execute("ATTACH DATABASE ? AS bundle", (str(bundle),))
+        try:
+            ready = dict(connection.execute(
+                "SELECT key, value FROM bundle.esco_catalog_metadata"
+            ).fetchall())
+            if (ready.get("embeddings_ready") != "true"
+                    or ready.get("embedding_model") != career_recommendations.MODEL_NAME):
+                raise RuntimeError("Bundled ESCO catalog has no usable embeddings")
+            with connection:
+                for table in (
+                    "esco_concept_embeddings",
+                    "esco_occupation_skill_relations",
+                    "esco_skills",
+                    "esco_occupations",
+                    "esco_catalog_metadata",
+                ):
+                    connection.execute(f"DELETE FROM main.{table}")
+                for table in (
+                    "esco_occupations",
+                    "esco_skills",
+                    "esco_occupation_skill_relations",
+                    "esco_concept_embeddings",
+                    "esco_catalog_metadata",
+                ):
+                    connection.execute(
+                        f"INSERT INTO main.{table} SELECT * FROM bundle.{table}"
+                    )
+            _cached_esco_catalog.cache_clear()
+            _LOGGER.info("Bundled ESCO catalog restored into runtime database")
+        finally:
+            connection.execute("DETACH DATABASE bundle")
+
+
 @app.on_event("startup")
 def startup() -> None:
     initialize_database()
+    seed_bundled_esco_catalog()
 
 
 class StrictModel(BaseModel):
