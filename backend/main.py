@@ -352,6 +352,11 @@ async def validate_mutation_origin(request: Request, call_next):
     return await call_next(request)
 
 
+@app.get("/api/health")
+def health() -> dict[str, str]:
+    return {"status": "healthy", "service": "SkillBridge"}
+
+
 @app.on_event("startup")
 def startup() -> None:
     initialize_database()
@@ -878,7 +883,8 @@ def logout(request: Request, response: Response) -> dict[str, str]:
         with database_connection() as connection:
             connection.execute("DELETE FROM sessions WHERE token_hash = ?", (token_hash,))
     response.delete_cookie(
-        key=COOKIE_NAME, path="/", httponly=True, secure=SESSION_COOKIE_SECURE, samesite="lax"
+        key=COOKIE_NAME, path="/", httponly=True, secure=SESSION_COOKIE_SECURE,
+        samesite="none" if SESSION_COOKIE_SECURE else "lax"
     )
     return {"message": "Signed out."}
 
