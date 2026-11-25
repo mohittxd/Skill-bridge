@@ -548,7 +548,7 @@ def _set_session_cookie(response: Response, token: str) -> None:
         max_age=SESSION_TTL_SECONDS,
         httponly=True,
         secure=SESSION_COOKIE_SECURE,
-        samesite="lax",
+        samesite="none" if SESSION_COOKIE_SECURE else "lax",
         path="/",
     )
 
