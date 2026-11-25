@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import EmployeeDashboard from './EmployeeDashboard.jsx'
 
 const API_OPTIONS = { credentials: 'include' }
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')
+const apiRequest = (url, options) => fetch(`${API_BASE_URL}${url}`, options)
 
 class SessionExpiredError extends Error {
   constructor() {
@@ -85,7 +87,7 @@ function LoginScreen({ onLogin, notice }) {
     setSubmitting(true)
     setError('')
     try {
-      const response = await fetch(mode === 'register' ? '/api/auth/register' : '/api/auth/login', {
+      const response = await apiRequest(mode === 'register' ? '/api/auth/register' : '/api/auth/login', {
         ...API_OPTIONS,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -880,7 +882,7 @@ export default function App() {
 
     async function restoreSession() {
       try {
-        const response = await fetch('/api/auth/me', API_OPTIONS)
+        const response = await apiRequest('/api/auth/me', API_OPTIONS)
         if (response.ok) {
           const data = await response.json()
           if (active) {
@@ -910,7 +912,7 @@ export default function App() {
   }, [])
 
   const apiFetch = useCallback(async (url, options = {}) => {
-    const response = await fetch(url, { ...API_OPTIONS, ...options })
+    const response = await apiRequest(url, { ...API_OPTIONS, ...options })
     if (response.status === 401) {
       expireSession()
       throw new SessionExpiredError()
@@ -929,7 +931,7 @@ export default function App() {
     setLoggingOut(true)
     setLogoutError('')
     try {
-      const response = await fetch('/api/auth/logout', { ...API_OPTIONS, method: 'POST' })
+      const response = await apiRequest('/api/auth/logout', { ...API_OPTIONS, method: 'POST' })
       if (!response.ok && response.status !== 401) {
         throw new Error(await readError(response, 'Could not sign out. Please try again.'))
       }
