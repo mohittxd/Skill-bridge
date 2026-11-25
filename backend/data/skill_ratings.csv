@@ -1,0 +1,26 @@
+employee_id,skill,current_level
+EMP001,SQL,3
+EMP001,Python,2
+EMP001,Data Visualization,2
+EMP001,Excel,4
+EMP002,Python,4
+EMP002,API Design,3
+EMP002,Databases,3
+EMP002,Git,4
+EMP002,Docker,2
+EMP002,System Design,2
+EMP003,Testing Fundamentals,4
+EMP003,Test Automation,2
+EMP003,API Testing,2
+EMP003,Bug Tracking,3
+EMP003,SQL,2
+EMP004,SQL,5
+EMP004,Python,4
+EMP004,Data Visualization,4
+EMP004,Statistics,4
+EMP004,Excel,5
+EMP005,Python,3
+EMP005,API Design,2
+EMP005,Databases,2
+EMP005,Git,3
+EMP005,Docker,0

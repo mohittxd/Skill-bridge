@@ -1,0 +1,17 @@
+role_id,role_name,skill,required_level
+data-analyst,Data Analyst,SQL,4
+data-analyst,Data Analyst,Python,3
+data-analyst,Data Analyst,Data Visualization,4
+data-analyst,Data Analyst,Statistics,3
+data-analyst,Data Analyst,Excel,4
+backend-developer,Backend Developer,Python,4
+backend-developer,Backend Developer,API Design,4
+backend-developer,Backend Developer,Databases,4
+backend-developer,Backend Developer,Git,3
+backend-developer,Backend Developer,Docker,3
+backend-developer,Backend Developer,System Design,3
+qa-engineer,QA Engineer,Testing Fundamentals,4
+qa-engineer,QA Engineer,Test Automation,3
+qa-engineer,QA Engineer,API Testing,3
+qa-engineer,QA Engineer,Bug Tracking,3
+qa-engineer,QA Engineer,SQL,2

@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Local backend state and secrets
+backend/*.db
+backend/*.db-*
+backend/*.sqlite
+backend/*.sqlite-*
+backend/*.sqlite3
+backend/*.sqlite3-*
+backend/data/esco-*/
+backend/.env
+.env
+
+# Frontend dependencies and builds
+frontend/node_modules/
+frontend/dist/
+
+# Editor and operating-system files
+.DS_Store
+.idea/
+
+
+# Additional local environments and secrets
+.venv*/
+.env.*
+!.env.example
+*.pem
+*.key

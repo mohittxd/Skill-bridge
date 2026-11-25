@@ -1,0 +1,24 @@
+course_id,skill,title,difficulty,estimated_duration
+C001,SQL,SQL Foundations for Analysts,Beginner,4 hours
+C002,SQL,Analytical SQL and Window Functions,Intermediate,6 hours
+C003,Python,Python Fundamentals,Beginner,6 hours
+C004,Python,Practical Python Projects,Intermediate,8 hours
+C005,Python,Advanced Python Patterns,Advanced,7 hours
+C006,Data Visualization,Data Visualization Essentials,Beginner,5 hours
+C007,Data Visualization,Dashboard Storytelling,Intermediate,6 hours
+C008,Statistics,Statistics Made Simple,Beginner,5 hours
+C009,Statistics,Applied Statistics for Business,Intermediate,7 hours
+C010,Excel,Excel Formulas and Pivot Tables,Intermediate,4 hours
+C011,API Design,REST API Design Basics,Beginner,4 hours
+C012,API Design,Production API Design,Intermediate,6 hours
+C013,Databases,Database Fundamentals,Beginner,5 hours
+C014,Databases,Relational Database Design,Intermediate,7 hours
+C015,Git,Git and Collaboration,Beginner,3 hours
+C016,Docker,Docker from Zero,Beginner,5 hours
+C017,Docker,Container Workflows,Intermediate,6 hours
+C018,Testing Fundamentals,Software Testing Foundations,Beginner,4 hours
+C019,Test Automation,Test Automation with Python,Beginner,7 hours
+C020,Test Automation,Maintainable Test Suites,Intermediate,6 hours
+C021,API Testing,Hands-on API Testing,Beginner,5 hours
+C022,API Testing,Advanced API Test Design,Advanced,6 hours
+C023,Bug Tracking,Effective Defect Reporting,Beginner,3 hours
