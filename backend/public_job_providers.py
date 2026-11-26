@@ -23,7 +23,7 @@ GREENHOUSE_BOARD_URL = "https://boards-api.greenhouse.io/v1/boards"
 LEVER_POSTINGS_URL = "https://api.lever.co/v0/postings"
 DEFAULT_GREENHOUSE_BOARDS = ("stripe", "figma", "gitlab", "cloudflare", "databricks")
 DEFAULT_LEVER_SITES = ("mindtickle", "meesho", "cred")
-HIMALAYAS_PAGES_PER_QUERY = 1
+HIMALAYAS_PAGES_PER_QUERY = 2
 LEVER_PAGE_SIZE = 100
 LEVER_MAX_PAGES = 2
 CACHE_SECONDS = 900
@@ -163,7 +163,7 @@ async def _get_json(
     url: str,
 ) -> tuple[Any, bool]:
     cache_key = hashlib.sha256(url.encode("utf-8")).hexdigest()
-    deadline = time.monotonic() + 35
+    deadline = time.monotonic() + 12
     while True:
         state, payload = await asyncio.to_thread(_claim, cache_path, cache_key)
         if state == "cached":
@@ -353,11 +353,15 @@ def _himalayas_job(item: dict[str, Any]) -> dict[str, Any] | None:
     zones = zones if isinstance(zones, list) else []
     india_eligible: bool | None
     if restrictions:
-        india_eligible = any("india" in str(value).casefold() for value in restrictions)
+        india_eligible = any(
+            _text(value).casefold() in {"in", "india", "worldwide", "global", "anywhere"}
+            or "india" in _text(value).casefold()
+            for value in restrictions
+        )
     elif zones:
         india_eligible = any(_india_timezone(value) for value in zones)
     else:
-        india_eligible = None
+        india_eligible = True  # No location or time-zone restrictions in this feed.
     if india_eligible is True:
         location = "Remote · India eligible"
     elif restrictions:
@@ -678,7 +682,7 @@ async def fetch_public_listings(
     sites = lever_sites()
     semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
     async with httpx.AsyncClient(
-        timeout=httpx.Timeout(20, connect=8),
+        timeout=httpx.Timeout(8, connect=4),
         follow_redirects=True,
         headers={
             "Accept": "application/json",
@@ -704,6 +708,12 @@ async def fetch_public_listings(
     for provider, result in zip(("Himalayas", "Greenhouse", "Lever"), results):
         if isinstance(result, ProviderError):
             warnings.append(_warnings(result, provider))
+            continue
+        if isinstance(result, asyncio.CancelledError):
+            raise result
+        if isinstance(result, Exception):
+            _LOGGER.warning("Public job provider %s failed: %s", provider, type(result).__name__)
+            warnings.append({"provider": provider, "error": "The provider could not be processed."})
             continue
         if isinstance(result, BaseException):
             raise result
