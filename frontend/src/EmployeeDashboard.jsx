@@ -568,7 +568,7 @@ export default function EmployeeDashboard({
     setCareerRecommendationsLoading(true)
     setCareerRecommendationsError('')
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 45000)
+    const timeout = setTimeout(() => controller.abort(), 75000)
 
     async function loadCareerRecommendations() {
       try {
