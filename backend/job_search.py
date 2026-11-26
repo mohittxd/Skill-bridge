@@ -350,6 +350,7 @@ async def search_listings(
         if title_score >= 50 or len(matched_skills) >= 3 or direct_query:
             relevant.append(job)
 
+    _development_log("relevance", retrieved=len(jobs), relevant=len(relevant))
     cached = payload["cache_hits"] == payload["cache_total"]
     return {
         "total": len(relevant),
@@ -456,7 +457,7 @@ def _location_matches(preferred: str, listing: str) -> Optional[bool]:
     if wanted in found or found in wanted:
         return True
     if wanted == "india":
-        return "india" in found
+        return "india" in found or public_job_providers._india_eligible(found)
     return False
 
 
@@ -494,7 +495,7 @@ def filter_jobs(
         india_eligible = job.get("location_eligible") is True
         preferred_is_india = _normalize_title(location) == "india"
         if location:
-            if job.get("location_eligible") is False:
+            if preferred_is_india and job.get("location_eligible") is False and location_match is not True:
                 continue
             if location_match is False:
                 if preferred_is_india and india_eligible:
@@ -634,11 +635,10 @@ def score_job(
         )
 
     location_match = _location_matches(location, str(job.get("location") or ""))
-    location_score = (
-        100 if job.get("location") else None
-    ) if location.casefold() == "india" else (
-        None if location_match is None else 100 if location_match else 0
-    )
+    if job.get("work_mode") == "remote" and job.get("location_eligible") is True and location:
+        location_score = 100 if location_match is True or location.casefold() == "india" else None
+    else:
+        location_score = None if location_match is None else 100 if location_match else 0
 
     other_scores: list[int] = []
     if employment_type != "any":
