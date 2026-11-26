@@ -715,6 +715,13 @@ async def fetch_public_listings(
         if succeeded:
             successful_providers.append(provider)
 
+    for warning in warnings:
+        _LOGGER.warning(
+            "public-job provider failure provider=%s reason=%s",
+            warning.get("provider", "unknown"),
+            warning.get("error", "unknown"),
+        )
+
     if not successful_providers:
         message = "All configured public job providers are unavailable; retry shortly."
         if warnings:
